@@ -15,19 +15,24 @@
     let ctx = c.getContext("2d");
 	
 	let img = new Image();
-    img.src = "https://lh3.googleusercontent.com/proxy/sRNl-F3BHo2NxcfGBYLRlDYi3flJbY7_uKYX68FQAlEjGszvEEJQi4hLWBoF-NNDgDN6S1O8zrJveGl-3aA9W9acRM6DYFSys5yRcvnewpJ7u-JVxtg14wq5n2_fHodpAUMip8d4t5CUA9WUemiI"
+    img.src = "https://pngimg.com/uploads/meteor/meteor_PNG21.png"
 	
 	let imgBen = new Image();
-    imgBen.src = "https://lh3.googleusercontent.com/proxy/S6lB9b3MFiFaQjQWDUk2ETKuZZNR5m3ouflV8uVmQ94ULJxXLX8F8Im7sGLKJoWezQlmeIXNUvj6-RixKOyv0EpgAtxcdGyx0KCB2iHsBFVu6VPBWmy02_T61M0p"
-	
+	img.onload =  function(){
+		    imgBen.src = "https://upload.wikimedia.org/wikipedia/commons/4/44/Plain_Yellow_Star.png"
+	}
+
 	let imgPlay = new Image();
-    imgPlay.src = "https://cdn4.iconfinder.com/data/icons/transport-circular-2/90/64-512.png"
+	imgBen.onload =  function(){
+		    imgPlay.src = "https://cdn4.iconfinder.com/data/icons/transport-circular-2/90/64-512.png"
+	}
 	  
     let game = {score: 0, lives: 3, level: 0};
 	
-	let player = {x:50, y:100, radius:imgPlay.naturalWidth*.15};
-	let harm = {x:900, y:500, radius: img.naturalWidth*.15};
-	let benefit = {x: 900, y:100, radius: imgBen.naturalWidth*.10};
+	imgPlay.onload =  function(){
+	let player = {x:100, y:100, radius:imgPlay.naturalWidth*.10};
+	let harm = {x:800, y:0, radius: img.naturalWidth*.01};
+	let benefit = {x: 800, y:100, radius: imgBen.naturalWidth*.10};
 
 	let upKey = false;
 	let downKey = false;
@@ -65,7 +70,6 @@
 	
 	//draws player object
 	const drawPlayer = () => {
-		eventHandler();
 		ctx.beginPath();
 		ctx.drawImage(imgPlay, player["x"], player["y"], imgPlay.naturalWidth*.15, imgPlay.naturalHeight*.15)
       	ctx.closePath();
@@ -77,7 +81,7 @@
 	const collision = (x, y) =>{
 		let first = (x["x"]- y["x"]);
 		let second = (x["y"] - y["y"]);
-		let distance = Math.sqrt((first-100)*(first-100) + (second)*(second));
+		let distance = Math.sqrt((first)*(first) + (second)*(second));
 		if(distance < (x["radius"] + y["radius"])){
 			return true;
 		}
@@ -101,17 +105,17 @@
 		   harm["x"] -=1;
 	  	   benefit["x"] -=1;
 	  }
-	  else if(game["score"] <= 25){
+	  else if(game["score"] <= 10){
 		  game["level"] = 2;
 		   harm["x"] -=3;
 	  	   benefit["x"] -=3;
 	  }
-      else if(game["score"] <=50){
+      else if(game["score"] <=15){
 		  game["level"] = 3;
 		  harm["x"] -=8;
 	  	  benefit["x"] -=8;
 	  }
-	  else if(game["score"] <= 100){
+	  else if(game["score"] <= 20){
 		  game["level"] = 4;
 		  harm["x"] -=11;
 	  	  benefit["x"] -=11;
@@ -126,21 +130,23 @@
 	  eventHandler();
 		
       // handle edge condition
-	  if (harm["x"] > c.width + harm["radius"]) {
-        harm["x"] = -harm["radius"];
+	  if (harm["x"] - harm["radius"] < 0) {
+        harm["x"] = c.width;
       }
 		
-	  if (benefit["x"] > c.width + benefit["radius"]) {
-        benefit["x"] = -harm["radius"];
+	  if (benefit["x"] - benefit["radius"] < 0) {
+        benefit["x"] = c.width;
       }
 	
     //objects
 	  drawPlayer();
+	  let collided = false
 	
-	ctx.beginPath();
-	ctx.drawImage(img, harm["x"], harm["y"], img.naturalWidth*.15, img.naturalHeight*.15)
-	ctx.closePath();
-	ctx.fill();
+	// while(collided == false){
+	  ctx.beginPath();
+	  ctx.drawImage(img, harm["x"], harm["y"], img.naturalWidth*.03, img.naturalHeight*.03)
+	  ctx.closePath();
+	  ctx.fill();
 		
 		
 	  ctx.beginPath();
@@ -155,6 +161,7 @@
 		    harm["y"] = Math.random()*(650 - 0) + 0;
 		    benefit["x"] = 900;
 		    benefit["y"] = Math.random()*(650 - 0) + 0;
+		    collided = true;
 		}
 		else if(collision(player, benefit)){
 			game["score"]++;
@@ -162,9 +169,9 @@
 			benefit["y"] = Math.random()*(650 - 0) + 0;
 			harm["x"] = 900;
 		    harm["y"] = Math.random()*(650 - 0) + 0;
+		    collided = true;
 		}
-		
-//       ctx.fillText("Lives: " + game["lives"], 25,25)
+
       scoreAndLives();
 		
 	  // repeat
@@ -181,9 +188,15 @@
 	const startScreen = () => {
 		ctx.font = "50px Arial";
 		ctx.fillStyle = "#FFFFFF";
-		ctx.fillText("Instructions:", 270, 150); 
-		ctx.fillText("Avoid the meteroids", 270, 220);
-		ctx.fillText("Catch as many stars", 270, 270);
+		ctx.fillText("Instructions:", 250, 150); 
+		ctx.fillText("Avoid the meteroids", 250, 220);
+		ctx.fillText("Catch as many stars", 250, 270);
+		ctx.fillText("Press Space to Start", 250, 350);
+		document.body.onkeyup = function(e){
+		    if(e.keyCode == 32){
+		        draw();
+		    }
+		}
 	}
 
 	//ending instructions
@@ -191,13 +204,22 @@
 		ctx.font = "50px Arial";
 		ctx.fillStyle = "#FFFFFF";
 		ctx.fillText("You Lost", 350, 150);
-		if(spaceKey){
-			draw();
+		ctx.fillText("Press Space to Play Again", 250, 220);
+		document.body.onkeyup = function(e){
+		    if(e.keyCode == 32){
+		    	game = {score: 0, lives: 3, level: 0};
+		    	player = {x:100, y:100, radius:imgPlay.naturalWidth*.10};
+				harm = {x:800, y:0, radius: img.naturalWidth*.01};
+				benefit = {x: 800, y:100, radius: imgBen.naturalWidth*.10};
+		        draw();
+		    }
 		}
 	}
 	
+	startScreen();
+	}
+
 	
-	draw();
 	
   </script>
 
